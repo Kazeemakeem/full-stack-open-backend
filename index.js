@@ -4,6 +4,7 @@ const app = express()
 
 app.use(cors())
 app.use(express.json())
+app.use(express.static('build'))
 
 let notes = [
     {
@@ -69,6 +70,12 @@ app.delete('/api/notes/:id', (req, res) => {
   
 })
 
+app.put('/api/notes/:id', (req, res) => {
+  const id = Number(req.params.id)
+  notes = notes.map(n => n.id !== id ? n : req.body)
+  res.json(req.body)
+})
+
 app.post('/api/notes', (req, res) => {
   const body = req.body
   if(!body.content) {
@@ -76,14 +83,8 @@ app.post('/api/notes', (req, res) => {
       error: "content missing"
     })
   }
-  const newNote = {
-    content: body.content,
-    important: body.important || false,
-    date: new Date(),
-    id: notes.length + 1
-  }
-  notes.concat(newNote)
-  res.json(newNote)
+  notes = notes.concat(req.body)
+  res.json(req.body)
 })
 
 const PORT = process.env.PORT || 3002
